@@ -67,6 +67,12 @@ public class GalleryActivity extends Activity {
         return itemList;
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mGalleryList.setAdapter(null);
+    }
+
     public static void showToast(Context context, String message) {
         Toast.makeText(context, message, Toast.LENGTH_LONG)
                 .show();
