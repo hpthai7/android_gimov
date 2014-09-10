@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+
 import android.graphics.Bitmap;
 import android.util.Log;
 
@@ -50,7 +51,9 @@ public class MemoryCache {
             cache.put(id, bitmap);
             size += getSizeInBytes(bitmap);
             checkSize();
+            Log.d(TAG, "##1");
         } catch (Throwable th) {
+            Log.d(TAG, "#exception");
             th.printStackTrace();
         }
     }
@@ -58,6 +61,7 @@ public class MemoryCache {
     private void checkSize() {
         Log.i(TAG, "cache size = " + size + " length = " + cache.size());
         if (size > limit) {
+            Log.i(TAG, "Before Clean cache. New size " + cache.size());
             Iterator<Entry<String, Bitmap>> iter = cache.entrySet().iterator();
             // least recently accessed item will be the first one iterated
             while (iter.hasNext()) {

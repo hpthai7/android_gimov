@@ -1,6 +1,7 @@
 package jp.neoscorp.android.animov.Gallery;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 import jp.neoscorp.android.animov.R;
 import android.app.Activity;
@@ -18,11 +19,17 @@ public class GalleryAdapter extends BaseAdapter {
     private final Activity mActivity;
     private final ArrayList<String> mVideoList;
     private final ImageLoader mLoader;
+    private final Map<String, Integer> mVideoIdNameMap;
 
     public GalleryAdapter(Activity activity, ArrayList<String> filenames) {
+        this(activity, filenames, null);
+    }
+
+    public GalleryAdapter(Activity activity, ArrayList<String> filenames, Map<String, Integer> videoIdNameMap) {
         mActivity = activity;
         mVideoList = filenames;
-        mLoader = new ImageLoader(activity.getApplicationContext());
+        mLoader = new ImageLoader(activity.getApplicationContext(), videoIdNameMap);
+        mVideoIdNameMap = videoIdNameMap;
     }
 
     public class GalleryViewHolder {
@@ -79,10 +86,13 @@ public class GalleryAdapter extends BaseAdapter {
             thumbnailImage.setVisibility(View.VISIBLE);
             playImage.setVisibility(View.VISIBLE);
             shareButton.setVisibility(View.VISIBLE);
-
+            Log.d(TAG, "UpdateViewsRunnable-->updateViewsOnLoaded");
             loadingImage.setImageResource(0);
+            Log.d(TAG, "UpdateViewsRunnable-->updateViewsOnLoaded1");
             thumbnailImage.setImageBitmap(thumb);
+            Log.d(TAG, "UpdateViewsRunnable-->updateViewsOnLoaded2");
             playImage.setImageResource(R.drawable.play);
+            Log.d(TAG, "UpdateViewsRunnable-->updateViewsOnLoaded3");
         }
 
         public void updateViews(int position) {

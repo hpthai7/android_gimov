@@ -19,7 +19,6 @@ import jp.neoscorp.android.animov.Gallery.GalleryAdapter.GalleryViewHolder;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.ThumbnailUtils;
 import android.os.Handler;
 import android.provider.MediaStore.Video.Thumbnails;
 import android.util.Log;
@@ -33,10 +32,14 @@ public class ImageLoader {
             Collections.synchronizedMap(new WeakHashMap<ImageView, String>());
     private final ExecutorService executorService;
     private final Handler handler = new Handler(); // handler to display images in UI thread
+    private final Context loaderContext;
+    private final Map<String, Integer> videoIdNameMap;
 
-    public ImageLoader(Context context) {
+    public ImageLoader(Context context, Map<String, Integer> vidIdNameMap) {
         fileCache = new FileCache(context);
-        executorService = Executors.newFixedThreadPool(5);
+        executorService = Executors.newFixedThreadPool(1);
+        loaderContext = context;
+        videoIdNameMap = vidIdNameMap;
     }
 
     public void updateViews(String videoName, GalleryViewHolder holderView) {
@@ -77,10 +80,14 @@ public class ImageLoader {
                 if (!isThumbViewMappedToVideo(galleryItem.videoName, galleryItem.holderView.thumbnailImage)) {
                     return;
                 }
-                Bitmap thumb = ThumbnailUtils.createVideoThumbnail(
-                        GalleryActivity.PATH + galleryItem.videoName, Thumbnails.MINI_KIND);
+                Bitmap thumb = Thumbnails.getThumbnail(loaderContext.getContentResolver(),
+                        videoIdNameMap.get(galleryItem.videoName),
+                        GalleryActivity.mBucketId,
+                        Thumbnails.MINI_KIND,
+                        null);
                 Log.d(TAG, "thumb.size = " + thumb.getByteCount());
                 memoryCache.put(galleryItem.videoName, thumb);
+                Log.d(TAG, "##");
                 if (!isThumbViewMappedToVideo(galleryItem.videoName, galleryItem.holderView.thumbnailImage)) {
                     return;
                 }
@@ -102,6 +109,7 @@ public class ImageLoader {
 
         @Override
         public void run() {
+            Log.d(TAG, "UpdateViewsRunnable");
             if (!isThumbViewMappedToVideo(galleryItem.videoName, galleryItem.holderView.thumbnailImage)) {
                 galleryItem.holderView.updateViewsOnLoadFailure();
                 return;
@@ -110,6 +118,7 @@ public class ImageLoader {
                 galleryItem.holderView.updateViewsOnLoadFailure();
                 return;
             }
+            Log.d(TAG, "UpdateViewsRunnable1");
             galleryItem.holderView.updateViewsOnLoaded(thumbnail);
         }
     }
