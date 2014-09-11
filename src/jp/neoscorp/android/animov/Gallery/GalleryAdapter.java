@@ -1,7 +1,6 @@
 package jp.neoscorp.android.animov.Gallery;
 
 import java.util.ArrayList;
-import java.util.Map;
 
 import jp.neoscorp.android.animov.R;
 import android.app.Activity;
@@ -114,8 +113,8 @@ public class GalleryAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        GalleryViewHolder holderView;
+    public View getView(final int position, View convertView, ViewGroup parent) {
+        final GalleryViewHolder holderView;
         if (convertView == null) {
             convertView = mActivity.getLayoutInflater().inflate(
                     R.layout.gallery_item, parent, false);
@@ -126,6 +125,37 @@ public class GalleryAdapter extends BaseAdapter {
             holderView = (GalleryViewHolder) convertView.getTag();
         }
         holderView.updateViews(position);
+        final ImageView playImage = (ImageView) convertView.findViewById(R.id.img_play);
+        playImage.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                final Dialog dialog = new Dialog(mActivity,R.style.TransparentProgressDialog);
+                dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                dialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+                dialog.setContentView(R.layout.videopopup);
+                WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+                lp.copyFrom(dialog.getWindow().getAttributes());
+                lp.dimAmount=0.9f;
+                dialog.getWindow().setAttributes(lp);
+                dialog.show();
+                Window window = dialog.getWindow();
+                window.setLayout(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+                final VideoView vv = (VideoView) dialog.findViewById(R.id.surface);
+                vv.setVideoPath(GalleryActivity.PATH + mVideoList.get(position));
+                vv.setZOrderOnTop(true);
+                vv.start();
+
+                vv.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+
+                    @Override
+                    public void onCompletion(MediaPlayer mp) {
+                        dialog.dismiss();
+                    }
+                });
+            }
+        });
         return convertView;
     }
+
 }

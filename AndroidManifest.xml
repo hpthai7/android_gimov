@@ -7,7 +7,7 @@
 
     <uses-sdk
         android:minSdkVersion="14"
-        android:targetSdkVersion="21" />
+        android:targetSdkVersion="19" />
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -27,7 +27,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="jp.neoscorp.android.animov.Gallery.GalleryActivity"
+            android:name=".Gallery.GalleryActivity"
             android:label="@string/title_activity_gallery"
             android:parentActivityName=".GimovActivity"
             tools:ignore="UnusedAttribute" >
