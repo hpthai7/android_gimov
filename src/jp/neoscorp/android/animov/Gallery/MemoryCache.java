@@ -10,7 +10,7 @@ import android.graphics.Bitmap;
 import android.util.Log;
 
 public class MemoryCache {
-
+    private static final boolean DBG = false;
     private static final String TAG = "MemoryCache";
     private final Map<String, Bitmap> cache = Collections
             .synchronizedMap(new LinkedHashMap<String, Bitmap>(10, 1.5f, true));
@@ -22,12 +22,12 @@ public class MemoryCache {
         // use 25% of available heap size
         setLimit(Runtime.getRuntime().maxMemory() / 4);
         long cache = Runtime.getRuntime().maxMemory() / 4;
-        Log.d(TAG, "maxCache = " + cache);
+        if (DBG) Log.d(TAG, "maxCache = " + cache);
     }
 
     public void setLimit(long new_limit) {
         limit = new_limit;
-        Log.i(TAG, "MemoryCache will use up to " + limit / 1024. / 1024. + "MB");
+        if (DBG) Log.i(TAG, "MemoryCache will use up to " + limit / 1024. / 1024. + "MB");
     }
 
     public Bitmap get(String id) {
@@ -51,17 +51,14 @@ public class MemoryCache {
             cache.put(id, bitmap);
             size += getSizeInBytes(bitmap);
             checkSize();
-            Log.d(TAG, "##1");
         } catch (Throwable th) {
-            Log.d(TAG, "#exception");
             th.printStackTrace();
         }
     }
 
     private void checkSize() {
-        Log.i(TAG, "cache size = " + size + " length = " + cache.size());
+        if (DBG) Log.i(TAG, "cache size = " + size + " length = " + cache.size());
         if (size > limit) {
-            Log.i(TAG, "Before Clean cache. New size " + cache.size());
             Iterator<Entry<String, Bitmap>> iter = cache.entrySet().iterator();
             // least recently accessed item will be the first one iterated
             while (iter.hasNext()) {
@@ -71,7 +68,7 @@ public class MemoryCache {
                 if (size <= limit)
                     break;
             }
-            Log.i(TAG, "Clean cache. New size " + cache.size());
+            if (DBG) Log.i(TAG, "Clean cache. New size " + cache.size());
         }
     }
 

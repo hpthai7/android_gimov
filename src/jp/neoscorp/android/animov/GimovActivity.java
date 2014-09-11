@@ -16,7 +16,6 @@ import android.widget.Button;
 
 public class GimovActivity extends Activity {
     private static final String TAG = GimovActivity.class.getSimpleName();
-
     OnClickListener mListener;
 
     @Override
@@ -34,10 +33,12 @@ public class GimovActivity extends Activity {
 
         Button openGallBtn = (Button) findViewById(R.id.btn_open_gallery);
         openGallBtn.setOnClickListener(mListener);
-
-        String alpha = GalleryActivity.PATH + "alpha7.mp4";
-        String beta = GalleryActivity.PATH + "beta7.mp4";
-        MediaScannerConnection.scanFile(getApplicationContext(), new String[] { alpha, beta }, null, new OnScanCompletedListener() {
+//        Broadcasting new videos to gallery system and loader
+//        Integrate this in a saving-video-activity
+        String alpha = GalleryActivity.PATH + "alpha9.mp4";
+        String beta = GalleryActivity.PATH + "beta9.mp4";
+        String gamma = GalleryActivity.PATH + "repetition.mp4";
+        MediaScannerConnection.scanFile(getApplicationContext(), new String[] { alpha, beta, gamma }, null, new OnScanCompletedListener() {
             @Override
             public void onScanCompleted(String path, Uri uri) {
                 Log.i(TAG, "Scan completed, path = " + path);

@@ -19,33 +19,30 @@ public class GalleryAdapter extends BaseAdapter {
     private final Activity mActivity;
     private final ArrayList<String> mVideoList;
     private final ImageLoader mLoader;
-    private final Map<String, Integer> mVideoIdNameMap;
 
     public GalleryAdapter(Activity activity, ArrayList<String> filenames) {
         this(activity, filenames, null);
     }
 
-    public GalleryAdapter(Activity activity, ArrayList<String> filenames, Map<String, Integer> videoIdNameMap) {
+    public GalleryAdapter(Activity activity, ArrayList<String> filenames, Map<String, Integer> videoIdByName) {
         mActivity = activity;
         mVideoList = filenames;
-        mLoader = new ImageLoader(activity.getApplicationContext(), videoIdNameMap);
-        mVideoIdNameMap = videoIdNameMap;
+        mLoader = new ImageLoader(activity.getApplicationContext(), videoIdByName);
     }
 
     public class GalleryViewHolder {
-//        private int itemPosition;
-        public ImageView loadingImage;
-        public ImageView thumbnailImage;
-        public ImageView playImage;
+        public ImageView loadingView;
+        public ImageView thumbnailView;
+        public ImageView playView;
         public Button shareButton;
 
         public void initView(View view, int position) {
-            loadingImage = (ImageView) view.findViewById(R.id.img_loading);
-            thumbnailImage = (ImageView) view
+            loadingView = (ImageView) view.findViewById(R.id.img_loading);
+            thumbnailView = (ImageView) view
                     .findViewById(R.id.img_thumbnail);
-            playImage = (ImageView) view.findViewById(R.id.img_play);
+            playView = (ImageView) view.findViewById(R.id.img_play);
             shareButton = (Button) view.findViewById(R.id.btn_share);
-            playImage.setOnClickListener(new OnClickListener() {
+            playView.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     GalleryActivity.showToast(mActivity, "Played");
@@ -60,43 +57,43 @@ public class GalleryAdapter extends BaseAdapter {
         }
 
         public void updateViewsOnLoading() {
-            loadingImage.setVisibility(View.VISIBLE);
-            thumbnailImage.setVisibility(View.INVISIBLE);
-            playImage.setVisibility(View.INVISIBLE);
+            loadingView.setVisibility(View.VISIBLE);
+            thumbnailView.setVisibility(View.INVISIBLE);
+            playView.setVisibility(View.INVISIBLE);
             shareButton.setVisibility(View.INVISIBLE);
 
-            loadingImage.setImageResource(R.drawable.loading);
-            thumbnailImage.setImageBitmap(null);
-            playImage.setImageResource(0);
+            loadingView.setImageResource(R.drawable.loading);
+            thumbnailView.setImageBitmap(null);
+            playView.setImageResource(0);
         }
 
         public void updateViewsOnLoadFailure() {
-            loadingImage.setVisibility(View.VISIBLE);
-            thumbnailImage.setVisibility(View.VISIBLE);
-            playImage.setVisibility(View.INVISIBLE);
+            loadingView.setVisibility(View.VISIBLE);
+            thumbnailView.setVisibility(View.VISIBLE);
+            playView.setVisibility(View.INVISIBLE);
             shareButton.setVisibility(View.INVISIBLE);
 
-            loadingImage.setImageResource(0);
-            thumbnailImage.setImageResource(R.drawable.video_error);
-            playImage.setImageResource(0);
+            loadingView.setImageResource(0);
+            thumbnailView.setImageResource(R.drawable.video_error);
+            playView.setImageResource(0);
         }
 
         public void updateViewsOnLoaded(Bitmap thumb) {
-            loadingImage.setVisibility(View.INVISIBLE);
-            thumbnailImage.setVisibility(View.VISIBLE);
-            playImage.setVisibility(View.VISIBLE);
+            loadingView.setVisibility(View.INVISIBLE);
+            thumbnailView.setVisibility(View.VISIBLE);
+            playView.setVisibility(View.VISIBLE);
             shareButton.setVisibility(View.VISIBLE);
-            Log.d(TAG, "UpdateViewsRunnable-->updateViewsOnLoaded");
-            loadingImage.setImageResource(0);
-            Log.d(TAG, "UpdateViewsRunnable-->updateViewsOnLoaded1");
-            thumbnailImage.setImageBitmap(thumb);
-            Log.d(TAG, "UpdateViewsRunnable-->updateViewsOnLoaded2");
-            playImage.setImageResource(R.drawable.play);
-            Log.d(TAG, "UpdateViewsRunnable-->updateViewsOnLoaded3");
+
+            loadingView.setImageResource(0);
+            thumbnailView.setImageBitmap(thumb);
+            playView.setImageResource(R.drawable.play);
         }
 
         public void updateViews(int position) {
-            Log.d(TAG, "getView: position = " + position + ", viewHolder = " + this.hashCode());
+            if (mLoader == null) {
+                Log.d(TAG, "Adapter constructor is without videoIdByName map");
+                return;
+            }
             mLoader.updateViews(mVideoList.get(position), this);
         }
     }
@@ -131,5 +128,4 @@ public class GalleryAdapter extends BaseAdapter {
         holderView.updateViews(position);
         return convertView;
     }
-
 }

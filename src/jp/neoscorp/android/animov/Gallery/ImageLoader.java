@@ -26,24 +26,31 @@ import android.widget.ImageView;
 
 public class ImageLoader {
     private static final String TAG = ImageLoader.class.getSimpleName();
+    private final Context loaderContext;
     private final MemoryCache memoryCache = new MemoryCache();
     private final FileCache fileCache;
-    private final Map<ImageView, String> videoMap =
-            Collections.synchronizedMap(new WeakHashMap<ImageView, String>());
     private final ExecutorService executorService;
     private final Handler handler = new Handler(); // handler to display images in UI thread
-    private final Context loaderContext;
-    private final Map<String, Integer> videoIdNameMap;
+    private final Map<String, Integer> videoIdByName;
+    private final Map<ImageView, String> videoNameByThumbview =
+            Collections.synchronizedMap(new WeakHashMap<ImageView, String>());
 
-    public ImageLoader(Context context, Map<String, Integer> vidIdNameMap) {
+    public ImageLoader(Context context, Map<String, Integer> vidIdByName) {
         fileCache = new FileCache(context);
         executorService = Executors.newFixedThreadPool(1);
         loaderContext = context;
-        videoIdNameMap = vidIdNameMap;
+        videoIdByName = vidIdByName;
     }
 
+    /**
+     * Loading thumbnails into ListView items
+     *
+     * @param videoName
+     * @param holderView
+     *          Corresponding ViewHolder of ListView item
+     */
     public void updateViews(String videoName, GalleryViewHolder holderView) {
-        videoMap.put(holderView.thumbnailImage, videoName);
+        videoNameByThumbview.put(holderView.thumbnailView, videoName);
         Bitmap thumb = memoryCache.get(videoName);
         if (thumb != null) {
             Log.d(TAG, "Reusing image from cache");
@@ -58,7 +65,7 @@ public class ImageLoader {
         private final String videoName;
         private final GalleryViewHolder holderView;
 
-        public GalleryItem(String filename, GalleryViewHolder view) {
+        GalleryItem(String filename, GalleryViewHolder view) {
             videoName = filename;
             holderView = view;
         }
@@ -77,18 +84,16 @@ public class ImageLoader {
         @Override
         public void run() {
             try {
-                if (!isThumbViewMappedToVideo(galleryItem.videoName, galleryItem.holderView.thumbnailImage)) {
+                if (!isThumbviewMappedToVideo(galleryItem.videoName, galleryItem.holderView.thumbnailView)) {
                     return;
                 }
                 Bitmap thumb = Thumbnails.getThumbnail(loaderContext.getContentResolver(),
-                        videoIdNameMap.get(galleryItem.videoName),
-                        GalleryActivity.mBucketId,
+                        videoIdByName.get(galleryItem.videoName),
+                        GalleryActivity.sBucketId, // identical for files in same folder
                         Thumbnails.MINI_KIND,
                         null);
-                Log.d(TAG, "thumb.size = " + thumb.getByteCount());
                 memoryCache.put(galleryItem.videoName, thumb);
-                Log.d(TAG, "##");
-                if (!isThumbViewMappedToVideo(galleryItem.videoName, galleryItem.holderView.thumbnailImage)) {
+                if (!isThumbviewMappedToVideo(galleryItem.videoName, galleryItem.holderView.thumbnailView)) {
                     return;
                 }
                 handler.post(new UpdateViewsRunnable(galleryItem, thumb));
@@ -109,8 +114,7 @@ public class ImageLoader {
 
         @Override
         public void run() {
-            Log.d(TAG, "UpdateViewsRunnable");
-            if (!isThumbViewMappedToVideo(galleryItem.videoName, galleryItem.holderView.thumbnailImage)) {
+            if (!isThumbviewMappedToVideo(galleryItem.videoName, galleryItem.holderView.thumbnailView)) {
                 galleryItem.holderView.updateViewsOnLoadFailure();
                 return;
             }
@@ -118,20 +122,19 @@ public class ImageLoader {
                 galleryItem.holderView.updateViewsOnLoadFailure();
                 return;
             }
-            Log.d(TAG, "UpdateViewsRunnable1");
             galleryItem.holderView.updateViewsOnLoaded(thumbnail);
         }
     }
 
-    private boolean isThumbViewMappedToVideo(String videoName, ImageView thumbView) {
-        String tag = videoMap.get(thumbView);
+    private boolean isThumbviewMappedToVideo(String videoName, ImageView thumbView) {
+        String tag = videoNameByThumbview.get(thumbView);
         if(tag == null || !tag.equals(videoName)) {
             return false;
         }
         return true;
     }
 
-    private Bitmap getBitmap(String url)
+    public Bitmap getBitmap(String url)
     {
         File f = fileCache.getFile(url);
 
