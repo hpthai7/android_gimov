@@ -8,5 +8,6 @@
     <string name="share">Share</string>
     <string name="title_activity_gimov">GimovActivity</string>
     <string name="title_activity_gallery">GalleryActivity</string>
+    <string name="title_share">Share</string>
 
 </resources>

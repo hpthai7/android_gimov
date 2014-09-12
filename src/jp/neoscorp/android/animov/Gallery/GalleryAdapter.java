@@ -1,17 +1,24 @@
 package jp.neoscorp.android.animov.Gallery;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 import jp.neoscorp.android.animov.R;
 import android.app.Activity;
+import android.app.Dialog;
 import android.graphics.Bitmap;
+import android.media.MediaPlayer;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
+import android.view.WindowManager.LayoutParams;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.VideoView;
 
 public class GalleryAdapter extends BaseAdapter {
     private static final String TAG = GalleryAdapter.class.getSimpleName();
@@ -153,6 +160,14 @@ public class GalleryAdapter extends BaseAdapter {
                         dialog.dismiss();
                     }
                 });
+            }
+        });
+        Button share = (Button)convertView.findViewById(R.id.btn_share);
+        share.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+
             }
         });
         return convertView;
